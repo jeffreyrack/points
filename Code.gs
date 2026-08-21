@@ -46,6 +46,13 @@ function setup() {
   if (blank && blank.getLastRow() === 0) ss.deleteSheet(blank);
 }
 
+/** Run this from the editor to print the deployed /exec URL. Null until deployed. */
+function showUrl() {
+  const url = ScriptApp.getService().getUrl();
+  console.log(url || 'Not deployed yet — use Deploy > New deployment first.');
+  return url;
+}
+
 function doGet(e) {
   const p = (e && e.parameter) || {};
 

@@ -71,9 +71,28 @@ page, not the raw HTML.
 
 ## 3. Deploy the Web App
 
-1. **Deploy → New deployment → ⚙ → Web app**.
-2. Execute as: **Me**. Who has access: **Anyone**.
-3. Deploy, approve, and copy the **Web app URL** — it ends in `/exec`.
+In the Apps Script editor (**Extensions → Apps Script** from the Sheet):
+
+1. **Deploy** (top right) → **New deployment**.
+2. Click the **⚙ gear** next to "Select type" → **Web app**.
+3. Execute as: **Me**. Who has access: **Anyone**.
+4. Deploy, approve, and copy the **Web app URL** — it ends in `/exec`.
+
+### Finding the URL again
+
+**Deploy → Manage deployments** → click the active deployment → copy the Web app
+URL. Or run the `showUrl` function from the editor's dropdown and read the
+execution log.
+
+Two things that look like the URL but aren't:
+
+- The editor's own address bar (`script.google.com/home/projects/…/edit`) — that's
+  the editor, not the API.
+- **Deploy → Test deployments** gives a `/dev` URL. It only works for accounts
+  with edit access to the script, so it'll work on your phone and fail on
+  everyone else's. Always use `/exec`.
+
+None of this involves Google Cloud or App Engine — Apps Script is self-contained.
 
 "Anyone" means anyone with the URL can read and change the points, so treat that
 URL like a password. There's no login on the app itself.
