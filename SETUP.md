@@ -45,10 +45,13 @@ the home screen icon and name come from that wrapper rather than `icon.png`.
 
 ### Option B — host `index.html` yourself (nicer on the phone)
 
-Put `index.html` and `icon.png` in a GitHub repo and turn on **Settings → Pages**
-(or use Netlify, Cloudflare Pages, any static host). You get a real URL, so
-iOS honors the meta tags: full-screen launch, "Points" as the name, and the star
-icon.
+Already done — this repo is published at:
+
+**https://jeffreyrack.github.io/points/**
+
+Open that in Safari on the phone. Because it's a real origin, iOS honors the
+meta tags: full-screen launch, "Points" as the name, and the star icon. Pushing
+to `main` redeploys it within a minute or so.
 
 You paste the Web App URL into the app once per phone; it's kept in that
 browser's local storage. **The URL is the only secret — publishing `index.html`
