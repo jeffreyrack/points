@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Points">
+<meta name="theme-color" content="#0f1220">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Points</title>
+<style>
+  :root {
+    --bg: #f4f5fa;
+    --card: #ffffff;
+    --card-2: #f0f1f7;
+    --text: #14161f;
+    --muted: #6a6f80;
+    --line: #e2e4ee;
+    --accent: #4f46e5;
+    --accent-soft: #e8e7fd;
+    --good: #12855f;
+    --bad: #c2382c;
+    --shadow: 0 1px 2px rgba(20, 22, 31, .06), 0 8px 24px rgba(20, 22, 31, .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1220;
+      --card: #191d2f;
+      --card-2: #222741;
+      --text: #eef0f8;
+      --muted: #969cb5;
+      --line: #2c3150;
+      --accent: #8b85ff;
+      --accent-soft: #2a2a58;
+      --good: #4ade9f;
+      --bad: #ff8b7e;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .3);
+    }
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: max(12px, env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom));
+    max-width: 640px;
+    margin: 0 auto;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  header { display: flex; align-items: center; gap: 10px; margin: 6px 2px 16px; }
+  header h1 { font-size: 22px; font-weight: 700; margin: 0; flex: 1; letter-spacing: -.02em; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--card); color: var(--text); font-size: 17px; cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .icon-btn:active { background: var(--card-2); }
+  .icon-btn.spin { animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  section { margin-bottom: 20px; }
+  h2 {
+    font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); margin: 0 4px 10px;
+  }
+
+  .users { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .user {
+    background: var(--card); border: 2px solid transparent; border-radius: 18px;
+    padding: 16px 14px; text-align: center; cursor: pointer; box-shadow: var(--shadow);
+    color: var(--text); font: inherit; transition: border-color .15s, transform .1s;
+  }
+  .user:active { transform: scale(.98); }
+  .user[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .user .name { font-size: 15px; font-weight: 600; color: var(--muted); }
+  .user[aria-pressed="true"] .name { color: var(--accent); }
+  .user .pts { font-size: 40px; font-weight: 800; line-height: 1.1; letter-spacing: -.03em; }
+  .user .unit { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+  .adjust { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .adjust button {
+    padding: 12px 0; border-radius: 12px; border: 1px solid var(--line); background: var(--card);
+    color: var(--text); font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .adjust button:active { background: var(--card-2); }
+  .adjust button.minus { color: var(--bad); }
+  .adjust button.plus { color: var(--good); }
+
+  .reward {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 14px; margin-bottom: 10px; cursor: pointer; color: var(--text);
+    font: inherit; box-shadow: var(--shadow);
+  }
+  .reward:active { transform: scale(.99); }
+  .reward .emoji { font-size: 26px; width: 34px; text-align: center; }
+  .reward .label { flex: 1; font-weight: 600; }
+  .reward .cost {
+    font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent); white-space: nowrap;
+  }
+  .reward[disabled] { opacity: .45; cursor: default; }
+  .reward[disabled] .cost { background: var(--card-2); color: var(--muted); }
+
+  .log { font-size: 14px; }
+  .log div {
+    display: flex; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--line);
+  }
+  .log div:last-child { border-bottom: 0; }
+  .log .who { font-weight: 600; min-width: 52px; }
+  .log .what { flex: 1; color: var(--muted); }
+  .log .amt { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .log .amt.up { color: var(--good); }
+  .log .amt.down { color: var(--bad); }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px;
+  }
+  .panel p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+  input[type="url"], input[type="text"] {
+    width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--text); font: inherit; margin-bottom: 10px;
+  }
+  .primary {
+    width: 100%; padding: 13px; border-radius: 12px; border: 0; background: var(--accent);
+    color: #fff; font: inherit; font-weight: 700; cursor: pointer;
+  }
+  .primary:active { filter: brightness(.92); }
+
+  .empty { color: var(--muted); font-size: 14px; padding: 4px; }
+  [hidden] { display: none !important; }
+
+  #toast {
+    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom));
+    transform: translate(-50%, 120%); max-width: min(92vw, 420px);
+    background: var(--text); color: var(--bg); padding: 12px 18px; border-radius: 14px;
+    font-size: 14px; font-weight: 600; text-align: center; z-index: 20;
+    transition: transform .25s cubic-bezier(.2, .9, .3, 1.2); box-shadow: var(--shadow);
+  }
+  #toast.show { transform: translate(-50%, 0); }
+  #toast.error { background: var(--bad); color: #fff; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Points</h1>
+  <button class="icon-btn" id="refresh" title="Refresh">&#8635;</button>
+  <button class="icon-btn" id="gear" title="Settings">&#9881;</button>
+</header>
+
+<section id="setup" hidden>
+  <h2>Connect</h2>
+  <div class="panel">
+    <p>Paste the Apps Script Web App URL (ends in <code>/exec</code>).</p>
+    <input type="url" id="url" placeholder="https://script.google.com/macros/s/.../exec"
+           autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button class="primary" id="save">Save &amp; connect</button>
+  </div>
+</section>
+
+<main id="app" hidden>
+  <section>
+    <div class="users" id="users"></div>
+  </section>
+
+  <section id="adjustSection">
+    <h2 id="adjustTitle">Adjust points</h2>
+    <div class="adjust">
+      <button class="minus" data-delta="-5">&minus;5</button>
+      <button class="minus" data-delta="-1">&minus;1</button>
+      <button data-delta="custom">&hellip;</button>
+      <button class="plus" data-delta="1">+1</button>
+      <button class="plus" data-delta="5">+5</button>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="rewardsTitle">Rewards</h2>
+    <div id="rewards"></div>
+  </section>
+
+  <section>
+    <h2>Recent activity</h2>
+    <div class="log" id="log"></div>
+  </section>
+</main>
+
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var URL_KEY = 'points.webAppUrl';
+  var USER_KEY = 'points.selectedUser';
+
+  /**
+   * When this page is served by Apps Script itself, the template fills in the
+   * Web App URL below and there's nothing to configure. Served as a plain file
+   * (GitHub Pages, etc.) the placeholder stays literal, so we fall back to the
+   * URL the user pasted into the setup panel.
+   */
+  var INJECTED_URL = '<?= WEB_APP_URL ?>';
+
+  function apiBase() {
+    if (INJECTED_URL.indexOf('<') === -1 && /^https:\/\//.test(INJECTED_URL)) return INJECTED_URL;
+    return localStorage.getItem(URL_KEY);
+  }
+
+  var state = null;
+  var selected = localStorage.getItem(USER_KEY) || null;
+  var busy = false;
+
+  var el = {
+    setup: document.getElementById('setup'),
+    app: document.getElementById('app'),
+    url: document.getElementById('url'),
+    users: document.getElementById('users'),
+    rewards: document.getElementById('rewards'),
+    rewardsTitle: document.getElementById('rewardsTitle'),
+    adjustTitle: document.getElementById('adjustTitle'),
+    log: document.getElementById('log'),
+    refresh: document.getElementById('refresh'),
+    toast: document.getElementById('toast'),
+  };
+
+  /**
+   * Apps Script is called via JSONP rather than fetch: a script tag is exempt
+   * from CORS, so this page works when opened from the phone's filesystem.
+   */
+  var seq = 0;
+  function api(params) {
+    return new Promise(function (resolve, reject) {
+      var base = apiBase();
+      if (!base) return reject(new Error('No Web App URL saved yet.'));
+
+      var cb = '__points_cb_' + (++seq);
+      var script = document.createElement('script');
+      var timer = setTimeout(function () {
+        cleanup();
+        reject(new Error('Timed out reaching Google. Check your connection.'));
+      }, 20000);
+
+      function cleanup() {
+        clearTimeout(timer);
+        try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[cb] = function (res) {
+        cleanup();
+        if (res && res.ok) resolve(res.data);
+        else reject(new Error((res && res.error) || 'The script returned an error.'));
+      };
+
+      script.onerror = function () {
+        cleanup();
+        reject(new Error('Could not reach the Web App. Check the URL and that access is set to "Anyone".'));
+      };
+
+      params.callback = cb;
+      params._ = String(Date.now());
+      var qs = Object.keys(params).map(function (k) {
+        return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+      }).join('&');
+
+      script.src = base + (base.indexOf('?') > -1 ? '&' : '?') + qs;
+      document.head.appendChild(script);
+    });
+  }
+
+  function toast(msg, isError) {
+    el.toast.textContent = msg;
+    el.toast.className = 'show' + (isError ? ' error' : '');
+    clearTimeout(toast.t);
+    toast.t = setTimeout(function () { el.toast.className = ''; }, isError ? 5000 : 2800);
+  }
+
+  function call(params, successMessage) {
+    if (busy) return;
+    busy = true;
+    el.refresh.classList.add('spin');
+    return api(params).then(function (data) {
+      state = data;
+      render();
+      if (data.message) toast(data.message);
+      else if (successMessage) toast(successMessage);
+    }).catch(function (err) {
+      toast(err.message, true);
+    }).then(function () {
+      busy = false;
+      el.refresh.classList.remove('spin');
+    });
+  }
+
+  function currentUser() {
+    if (!state || !state.users.length) return null;
+    var found = state.users.filter(function (u) { return u.name === selected; })[0];
+    return found || state.users[0];
+  }
+
+  function render() {
+    if (!state) return;
+    el.setup.hidden = true;
+    el.app.hidden = false;
+
+    var me = currentUser();
+    selected = me ? me.name : null;
+
+    el.users.innerHTML = '';
+    state.users.forEach(function (u) {
+      var b = document.createElement('button');
+      b.className = 'user';
+      b.setAttribute('aria-pressed', String(u.name === selected));
+      b.innerHTML =
+        '<div class="name"></div>' +
+        '<div class="pts"></div>' +
+        '<div class="unit">points</div>';
+      b.querySelector('.name').textContent = u.name;
+      b.querySelector('.pts').textContent = u.points;
+      b.onclick = function () {
+        selected = u.name;
+        localStorage.setItem(USER_KEY, selected);
+        render();
+      };
+      el.users.appendChild(b);
+    });
+
+    el.adjustTitle.textContent = me ? 'Adjust ' + me.name + "'s points" : 'Adjust points';
+    el.rewardsTitle.textContent = me ? 'Spend ' + me.name + "'s points" : 'Rewards';
+
+    el.rewards.innerHTML = '';
+    if (!state.rewards.length) {
+      el.rewards.innerHTML = '<div class="empty">No rewards in the sheet yet.</div>';
+    }
+    state.rewards.forEach(function (r) {
+      var affordable = me && me.points >= r.cost;
+      var b = document.createElement('button');
+      b.className = 'reward';
+      if (!affordable) b.disabled = true;
+      b.innerHTML =
+        '<span class="emoji"></span>' +
+        '<span class="label"></span>' +
+        '<span class="cost"></span>';
+      b.querySelector('.emoji').textContent = r.emoji || '🎁';
+      b.querySelector('.label').textContent = r.name;
+      b.querySelector('.cost').textContent = r.cost + ' pts';
+      b.onclick = function () {
+        if (!confirm('Spend ' + r.cost + ' points on ' + r.name + ' for ' + me.name + '?')) return;
+        call({ action: 'redeem', user: me.name, reward: r.name });
+      };
+      el.rewards.appendChild(b);
+    });
+
+    el.log.innerHTML = '';
+    if (!state.log.length) {
+      el.log.innerHTML = '<div class="empty">Nothing yet.</div>';
+    }
+    state.log.forEach(function (entry) {
+      var row = document.createElement('div');
+      row.innerHTML =
+        '<span class="who"></span><span class="what"></span><span class="amt"></span>';
+      row.querySelector('.who').textContent = entry.user;
+      row.querySelector('.what').textContent = entry.detail || entry.action;
+      var amt = row.querySelector('.amt');
+      amt.textContent = (entry.delta > 0 ? '+' : '') + entry.delta;
+      amt.className = 'amt ' + (entry.delta > 0 ? 'up' : 'down');
+      el.log.appendChild(row);
+    });
+  }
+
+  document.querySelectorAll('.adjust button').forEach(function (b) {
+    b.onclick = function () {
+      var me = currentUser();
+      if (!me) return;
+      var delta = b.dataset.delta;
+      if (delta === 'custom') {
+        var input = prompt('Change ' + me.name + "'s points by (e.g. 10 or -3):", '10');
+        if (input === null) return;
+        delta = parseInt(input, 10);
+        if (!delta) return toast('Enter a non-zero whole number.', true);
+      }
+      var note = prompt('What for?', Number(delta) > 0 ? 'Chores' : 'Correction');
+      if (note === null) return;
+      call({ action: 'adjust', user: me.name, delta: delta, note: note || 'Manual adjustment' });
+    };
+  });
+
+  el.refresh.onclick = function () { call({ action: 'state' }); };
+
+  document.getElementById('gear').onclick = function () {
+    el.url.value = apiBase() || '';
+    el.setup.hidden = false;
+    el.app.hidden = true;
+    el.url.focus();
+  };
+
+  document.getElementById('save').onclick = function () {
+    var v = el.url.value.trim();
+    if (!/^https:\/\/script\.google\.com\/.*\/exec$/.test(v)) {
+      return toast('That should be a script.google.com URL ending in /exec.', true);
+    }
+    localStorage.setItem(URL_KEY, v);
+    call({ action: 'state' }, 'Connected.');
+  };
+
+  if (apiBase()) {
+    call({ action: 'state' });
+  } else {
+    el.setup.hidden = false;
+  }
+})();
+</script>
+</body>
+</html>
