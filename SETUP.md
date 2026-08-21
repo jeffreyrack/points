@@ -99,17 +99,22 @@ URL like a password. There's no login on the app itself.
 
 ## 4. Put it on the iPhone home screen
 
-1. Open the URL **in Safari** (not Chrome — only Safari can add to the home
-   screen).
-2. Tap **Share** (the box with the up arrow) → scroll down → **Add to Home
-   Screen** → **Add**.
-3. Launch it from the icon.
+1. In **Safari**, open https://jeffreyrack.github.io/points/
+2. Tap **Share** (the box with the up arrow, center of the bottom toolbar) →
+   scroll down → **Add to Home Screen**. If that action is missing, tap
+   **Edit Actions…** and enable it.
+3. The name pre-fills as "Points". Tap **Add**.
+4. **Launch it from the icon, and paste the `/exec` URL there** — not in Safari
+   first. A home screen web app can get its own storage container separate from
+   Safari's, so a URL saved in Safari may not carry over.
 
-Under Option B it opens with no browser chrome, like a real app. Under Option A
-you'll see Safari's address bar.
+Under Option B it opens full-screen with no browser chrome. Under Option A you'll
+see Safari's toolbars, because Apps Script serves the page inside its own frame.
 
-To put it on a second phone, open the same URL there and repeat — under Option B
-you'll paste the Web App URL again on that device.
+Repeat on the second phone; you'll paste the Web App URL again on that device.
+Keep the URL somewhere you can find it — a password manager or a note.
+
+If the app ever forgets the URL, tap **⚙** and paste it again.
 
 ## Using it
 
